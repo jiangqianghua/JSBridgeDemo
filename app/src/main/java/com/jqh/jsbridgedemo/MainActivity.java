@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
+import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.Button;
@@ -60,6 +61,18 @@ public class MainActivity extends AppCompatActivity {
         getWebValBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                nativeSDK.getWebEditTextValueForReturn(new CallBack() {
+                    @Override
+                    public void invoke(final String value) {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                new AlertDialog.Builder(MainActivity.this).setMessage(value).create().show();
+                            }
+                        });
+                    }
+                });
+                /**
                 nativeSDK.getWebEditTextValue(new CallBack() {
                     @Override
                     public void invoke(final String value) {
@@ -71,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
                         });
                     }
                 });
+                 **/
             }
         });
     }
@@ -105,6 +119,19 @@ public class MainActivity extends AppCompatActivity {
                 callbackMap.get(callbackId).invoke(value);
             }
         }
+
+        void getWebEditTextValueForReturn(final CallBack callBack) {
+            int callbackId = id++;
+            callbackMap.put(callbackId, callBack);
+            String jsCode = String.format("window.getWebEditTextValueForReturn(%s)", callbackId);
+            ((MainActivity)ctx).webView.evaluateJavascript(jsCode, new ValueCallback<String>() {
+                @Override
+                public void onReceiveValue(String s) {
+                    callBack.invoke(s);
+                }
+            });
+        }
+
     }
 
 

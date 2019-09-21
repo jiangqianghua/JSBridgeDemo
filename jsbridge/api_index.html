@@ -46,6 +46,13 @@
 				const value = editText.value;
 				window.NativeBridge.receiveMessage(callbackId, value)
 			}
+			
+			window.getWebEditTextValueForReturn = () => {
+				//alert("getWebEditTextValue");
+				const editText = document.querySelector('#editText');
+				const value = editText.value;
+				return value
+			}
 		</script>
 		<style>
 			*{
