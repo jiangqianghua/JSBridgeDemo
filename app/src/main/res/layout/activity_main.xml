@@ -33,5 +33,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="刷新web"/>
+        <Button
+            android:id="@+id/getWebValBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="获取Web值"/>
     </LinearLayout>
 </LinearLayout>

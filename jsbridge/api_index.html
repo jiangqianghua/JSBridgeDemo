@@ -5,6 +5,20 @@
 		<meta charset="utf-8">
 		<title>index</title>
 		<script>
+			let id = 1 ; 
+			const callbackMap = {}
+			window.JSSDK = {
+				getNativeEditValue(callback){
+					const callbackId = id++;
+					callbackMap[callbackId] = callback
+					window.NativeBridge.getNativeEditTextValue(callbackId)
+				},
+				receiveMessage(callbackId , value){
+					if (callbackMap[callbackId]) {
+						callbackMap[callbackId](value)
+					}
+				}
+			}
 			// java 可以调用到该方法
 			window.showWebDialog = text => window.alert(text);
 			document.addEventListener("DOMContentLoaded", e => {
@@ -14,16 +28,28 @@
 					const inputVal = editText.value;
 					showNativeDialog(inputVal)
 				})
+				
+				const showBtn2 = document.querySelector("#showBtn2");
+				showBtn2.addEventListener("click", e => {
+					JSSDK.getNativeEditValue(value => window.alert("native 值：" + value))
+				})
 			})
 			
 			function showNativeDialog(text){
 				// 利用url schema 方式 调用java,java可以拦截到alert方法,jqh:// 是自定义的,java需要做判断
 				window.NativeBridge.showNativeDialog(text)
 			}
+			
+			window.getWebEditTextValue = callbackId => {
+				//alert("getWebEditTextValue");
+				const editText = document.querySelector('#editText');
+				const value = editText.value;
+				window.NativeBridge.receiveMessage(callbackId, value)
+			}
 		</script>
 		<style>
 			*{
-				font-size: 50px;
+				font-size: 30px;
 			}
 		</style>
 	</head>
@@ -33,6 +59,9 @@
 		</div>
 		<div>
 			<button id="showBtn" >显示弹窗</button>
+		</div>
+		<div>
+			<button id="showBtn2" >获取native数据</button>
 		</div>
 	</body>
 </html>
