@@ -1,21 +1,20 @@
 package com.jqh.jsbridgedemo;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
-import android.webkit.JavascriptInterface;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.util.Date;
-// 使用 api 注入的方式处理交互
-public class MainActivity extends AppCompatActivity {
+
+// 使用 js 注入api方式
+public class SchemaMainActivity extends AppCompatActivity {
 
     private WebView webView ;
     private Button refreshBtn,showBtn ;
@@ -27,12 +26,23 @@ public class MainActivity extends AppCompatActivity {
 
         webView = findViewById(R.id.webview);
         long timestamp = new Date().getTime();
-        webView.loadUrl("http://192.168.1.103:8000/api_index.html?timestamp=" + timestamp);
+        webView.loadUrl("http://192.168.1.103:8000/index.html?timestamp=" + timestamp);
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.setWebChromeClient(new WebChromeClient());
+        webView.setWebChromeClient(new WebChromeClient(){
+            @Override
+            public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+                if(!message.startsWith("jqh://")) {
+                    return super.onJsAlert(view, url, message, result);
+                }
+                result.confirm();
+                String text = message.substring(message.indexOf("=") + 1);
+                showNativeDialog(text);
+
+                return true;
+            }
+        });
         webView.setWebContentsDebuggingEnabled(true);
-        // 添加js拦截监听事件
-        webView.addJavascriptInterface(new NativeBridge(this),"NativeBridge");
+
         editText = findViewById(R.id.editText);
         showBtn = findViewById(R.id.showBtn);
 
@@ -48,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 long timestamp = new Date().getTime();
-                webView.loadUrl("http://192.168.1.103:8000/index.html?timestamp=" + timestamp);
+                webView.loadUrl("http://192.168.1.103:8000/schema_index.html?timestamp=" + timestamp);
             }
         });
     }
@@ -59,17 +69,7 @@ public class MainActivity extends AppCompatActivity {
         webView.evaluateJavascript(jsCode, null);
     }
 
-
-
-    class NativeBridge{
-        private Context ctx;
-
-        public NativeBridge(Context ctx) {
-            this.ctx = ctx;
-        }
-        @JavascriptInterface
-        public void showNativeDialog(String text){
-            new AlertDialog.Builder(ctx).setMessage(text).create().show();
-        }
+    private void showNativeDialog(String text){
+        new AlertDialog.Builder(this).setMessage(text).create().show();
     }
 }

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta charset="utf-8">
+		<title>index</title>
+		<script>
+			// java 可以调用到该方法
+			window.showWebDialog = text => window.alert(text);
+			document.addEventListener("DOMContentLoaded", e => {
+				const editText = document.querySelector('#editText');
+				const showBtn = document.querySelector("#showBtn");
+				showBtn.addEventListener("click", e => {
+					const inputVal = editText.value;
+					showNativeDialog(inputVal)
+				})
+			})
+			
+			function showNativeDialog(text){
+				// 利用url schema 方式 调用java,java可以拦截到alert方法,jqh:// 是自定义的,java需要做判断
+				window.alert('jqh://showNativeDialog?text=' + text)
+			}
+		</script>
+		<style>
+			*{
+				font-size: 50px;
+			}
+		</style>
+	</head>
+	<body>
+		<div>
+			<input id="editText" type="text" />
+		</div>
+		<div>
+			<button id="showBtn" >显示弹窗</button>
+		</div>
+	</body>
+</html>
