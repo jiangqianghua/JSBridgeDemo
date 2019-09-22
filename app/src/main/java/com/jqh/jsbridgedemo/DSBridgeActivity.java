@@ -5,12 +5,16 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
+
+import org.json.JSONObject;
 
 import java.util.Date;
 
@@ -31,7 +35,13 @@ public class DSBridgeActivity extends AppCompatActivity {
         long timestamp = new Date().getTime();
         webView.loadUrl("http://192.168.1.104:8000/dsbridge_index.html?timestamp=" + timestamp);
         webView.getSettings().setJavaScriptEnabled(true);
-        webView.setWebChromeClient(new WebChromeClient());
+        webView.setWebChromeClient(new WebChromeClient(){
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                Log.d("webview",consoleMessage.message());
+                return true;
+            }
+        });
         webView.setWebContentsDebuggingEnabled(true);
         // 添加js拦截监听事件
         webView.addJavascriptObject(new JSApi(this),null);
@@ -80,5 +90,16 @@ public class DSBridgeActivity extends AppCompatActivity {
             String inputVal = ((DSBridgeActivity)ctx).editText.getText().toString();
             handler.complete(inputVal);
         }
+        @JavascriptInterface
+        public void nativeRequest(Object msg, CompletionHandler<String> handler){
+            JSONObject jsonObject = (JSONObject) msg;
+            try {
+                String url = jsonObject.getString("url");
+                handler.complete(url);
+            }catch (Exception e ){
+
+            }
+        }
+
     }
 }
