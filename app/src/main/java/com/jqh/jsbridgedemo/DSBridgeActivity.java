@@ -1,12 +1,17 @@
 package com.jqh.jsbridgedemo;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.webkit.ConsoleMessage;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -101,5 +106,31 @@ public class DSBridgeActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    // 换肤
+    private void changeTheme(int color){
+        // 状态栏
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        getWindow().setStatusBarColor(color);
+        // 标题栏
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(color));
+        // 导航栏
+        getWindow().setNavigationBarColor(color);
+
+        // 修改web背景
+        webView.callHandler("changeTheme", new Object[]{color});
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        changeTheme(0xffff00ff);
+        return true;
     }
 }

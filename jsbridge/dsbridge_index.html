@@ -12,6 +12,12 @@
 				const editText = document.querySelector('#editText')
 				return navtiveVal + ":" + editText.value
 			})
+			dsBridge.register('changeTheme', (color) => {
+				// android 0xffff0000 ARGB
+				// web 0xff0000ff RGBA
+				// 去掉透明度 color & 0x00ffffff
+				document.body.style.backgroundColor = '#' + ( color & 0x00ffffff).toString(16)
+			})
 			document.addEventListener('DOMContentLoaded', e => {
 				const showBtn = document.querySelector('#showBtn2')
 				const httpReqBtn = document.querySelector('#httpReqBtn')
